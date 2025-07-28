@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Auto Dark Mode</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body class="side-panel-mode">
+    <!-- Sticky Header -->
+    <div class="header sticky-header">
+        <div class="header-title">
+            <span class="app-icon">🌙</span>
+            <span>AI Auto Dark Mode</span>
+        </div>
+        <div class="header-actions">
+            <button id="minimize-sections" class="action-btn" title="Minimize all sections">📁</button>
+            <button id="detach-btn" class="detach-button" title="Open in separate window">⧉</button>
+        </div>
+    </div>
+
+    <!-- Main Toggle Section -->
+    <div class="main-toggle">
+        <div class="toggle-container">
+            <div class="toggle-info">
+                <span class="toggle-label">Dark Mode</span>
+                <span class="toggle-status" id="toggle-status">Off</span>
+                <div class="page-status" id="page-status">
+                    <span class="status-indicator" id="status-indicator">●</span>
+                    <span class="status-text" id="status-text">Checking page...</span>
+                </div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Status Dashboard -->
+    <div class="section-card" id="status-dashboard">
+        <div class="section-header" data-section="status">
+            <span class="section-icon">📊</span>
+            <span class="section-title">Status Dashboard</span>
+            <span class="expand-icon">▼</span>
+        </div>
+        <div class="section-content" id="status-content">
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">Issues Found:</span>
+                    <span class="status-value" id="issues-count">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Fixes Applied:</span>
+                    <span class="status-value" id="fixes-count">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Confidence:</span>
+                    <span class="status-value" id="confidence-score">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Scan:</span>
+                    <span class="status-value" id="last-scan">-</span>
+                </div>
+            </div>
+            <div id="ai-status-content"></div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-card" id="quick-actions">
+        <div class="section-header" data-section="actions">
+            <span class="section-icon">⚡</span>
+            <span class="section-title">Quick Actions</span>
+            <span class="expand-icon">▼</span>
+        </div>
+        <div class="section-content" id="actions-content">
+            <div class="action-buttons">
+                <button class="action-button primary" id="report-issue">
+                    <span class="btn-icon">🔍</span>
+                    Report Issue
+                </button>
+                <button class="action-button secondary" id="export-feedback">
+                    <span class="btn-icon">📋</span>
+                    Export Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Chat Interface -->
+    <div class="section-card" id="ai-chat-section">
+        <div class="section-header" data-section="chat">
+            <span class="section-icon">🤖</span>
+            <span class="section-title">AI Assistant</span>
+            <span class="expand-icon">▼</span>
+        </div>
+        <div class="section-content" id="chat-content">
+            <div id="chat-messages" class="chat-container"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Describe dark mode issues..." class="chat-input">
+                <button class="chat-send-btn" id="chat-send">
+                    <span>➤</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="section-card" id="analytics-section" data-collapsed="true">
+        <div class="section-header" data-section="analytics">
+            <span class="section-icon">📈</span>
+            <span class="section-title">Analytics</span>
+            <span class="expand-icon">▶</span>
+        </div>
+        <div class="section-content collapsed" id="analytics-content">
+            <!-- Analytics content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- AI Learning Section -->
+    <div class="section-card" id="ai-learning-section" data-collapsed="true">
+        <div class="section-header" data-section="learning">
+            <span class="section-icon">🧠</span>
+            <span class="section-title">AI Learning</span>
+            <span class="expand-icon">▶</span>
+        </div>
+        <div class="section-content collapsed" id="ai-analytics-content">
+            <!-- AI learning content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Report Issue</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="feedback-modal-body">
+                <!-- Modal content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

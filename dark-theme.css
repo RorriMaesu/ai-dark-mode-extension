@@ -1,0 +1,102 @@
+/* Fix for menus, dropdowns, modals, overlays */
+html.universal-dark-mode .menu,
+html.universal-dark-mode .dropdown,
+html.universal-dark-mode .popover,
+html.universal-dark-mode .modal,
+html.universal-dark-mode .dialog,
+html.universal-dark-mode .context-menu {
+    background: #222 !important;
+    background-color: #222 !important;
+    color: #e4e6eb !important;
+}
+
+/* Universal Dark Mode - Aggressive Coverage */
+html.universal-dark-mode, html.universal-dark-mode body {
+    background: #18191a !important;
+    background-color: #18191a !important;
+    color: #e4e6eb !important;
+    color-scheme: dark !important;
+}
+
+html.universal-dark-mode * {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #e4e6eb !important;
+    border-color: #444 !important;
+    box-shadow: none !important;
+}
+
+html.universal-dark-mode a,
+html.universal-dark-mode a * {
+    color: #58a6ff !important;
+}
+
+html.universal-dark-mode table,
+html.universal-dark-mode th,
+html.universal-dark-mode td {
+    background: #222 !important;
+    background-color: #222 !important;
+    color: #e4e6eb !important;
+    border-color: #444 !important;
+}
+
+html.universal-dark-mode input,
+html.universal-dark-mode textarea,
+html.universal-dark-mode select,
+html.universal-dark-mode button {
+    background: #333 !important;
+    background-color: #333 !important;
+    color: #e4e6eb !important;
+    border: 1px solid #444 !important;
+}
+
+html.universal-dark-mode img,
+html.universal-dark-mode video,
+html.universal-dark-mode iframe {
+    filter: brightness(0.7) contrast(1.1) !important;
+    background: #222 !important;
+}
+
+html.universal-dark-mode [style*="background"],
+html.universal-dark-mode [style*="background-color"],
+html.universal-dark-mode [style*="background-image"] {
+    background: #18191a !important;
+    background-color: #18191a !important;
+    background-image: none !important;
+    color: #e4e6eb !important;
+}
+
+html.universal-dark-mode hr {
+    border-color: #444 !important;
+}
+
+html.universal-dark-mode ::selection {
+    background: #444 !important;
+    color: #e4e6eb !important;
+}
+
+html.universal-dark-mode .card,
+html.universal-dark-mode .panel,
+html.universal-dark-mode .container,
+html.universal-dark-mode .content,
+html.universal-dark-mode .main,
+html.universal-dark-mode .sidebar {
+    background: #222 !important;
+    color: #e4e6eb !important;
+}
+
+html.universal-dark-mode header,
+html.universal-dark-mode footer,
+html.universal-dark-mode nav,
+html.universal-dark-mode aside,
+html.universal-dark-mode section,
+html.universal-dark-mode article {
+    background: #222 !important;
+    color: #e4e6eb !important;
+}
+
+/* Remove background images and gradients */
+html.universal-dark-mode * {
+    background-image: none !important;
+    background: transparent !important;
+}

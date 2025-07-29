@@ -626,6 +626,71 @@ browserAPI.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
             break;
 
+        case 'TRIGGER_DARK_MODE_ANALYSIS':
+            // Handle real-time dark mode analysis trigger from popup
+            try {
+                console.debug('[Content] Triggering real-time dark mode analysis');
+                
+                const analysis = analyzePageForDarkMode();
+                const currentStatus = getCurrentDarkModeStatus();
+                
+                // Combine analysis with current status
+                const triggerResponse = {
+                    ...currentStatus,
+                    detailedAnalysis: analysis,
+                    triggered: true,
+                    timestamp: Date.now()
+                };
+                
+                // If AI learning is available, try to apply predictive fixes
+                if (aiLearning && analysis.darkModeIssues.length > 0) {
+                    aiLearning.generatePredictiveCSS(
+                        { tag: 'page', classes: [], description: 'real-time analysis' },
+                        { url: window.location.href, issues: analysis.darkModeIssues }
+                    ).then(predictiveFix => {
+                        if (predictiveFix && predictiveFix.confidence > 0.8) {
+                            // Auto-apply high-confidence fixes
+                            const style = document.createElement('style');
+                            style.textContent = predictiveFix.css;
+                            style.setAttribute('data-darkmode-patch', Date.now());
+                            style.setAttribute('data-source', 'ai-learning-predictive');
+                            document.head.appendChild(style);
+                            
+                            triggerResponse.predictiveFixApplied = true;
+                            triggerResponse.predictiveCSS = predictiveFix.css;
+                            triggerResponse.confidence = predictiveFix.confidence;
+                            
+                            console.debug('[Content] Applied predictive fix during real-time analysis:', predictiveFix);
+                        }
+                        
+                        sendResponse({ 
+                            status: 'ok', 
+                            ...triggerResponse
+                        });
+                    }).catch(error => {
+                        console.debug('[Content] Predictive fix failed during analysis:', error);
+                        sendResponse({ 
+                            status: 'ok', 
+                            ...triggerResponse
+                        });
+                    });
+                } else {
+                    sendResponse({ 
+                        status: 'ok', 
+                        ...triggerResponse
+                    });
+                }
+                
+            } catch (error) {
+                console.error('[Content] Error during triggered analysis:', error);
+                sendResponse({ 
+                    status: 'error', 
+                    error: error.message,
+                    timestamp: Date.now()
+                });
+            }
+            break;
+
         default:
             // It's good practice to handle unknown message types.
             console.warn('[Content] Received unknown message type:', msg.type);

@@ -1066,39 +1066,553 @@ async function performAutomaticElementAnalysis(elementData) {
             // Add detailed success message to chat
             addChatMessage('AI Assistant', `🤖 **Automatic Dark Mode Fix Applied**\n\n**Element:** ${elementData.tag} (${elementData.elementType || 'element'})\n**Auto-detected Issues:** ${issuesSummary}\n\n**Applied CSS Fix:**\n\`\`\`css\n${geminiResponse.cssPatch}\n\`\`\`\n\n💬 **Please let me know how the fix looks!** Use the buttons above or tell me in chat.`, 'assistant');
             
-        } catch (error) {
-            console.error('[Popup] Error in automatic analysis:', error);
-            updateFeedbackModal('<b>❌ Analysis Error</b><br>Could not analyze the element. Please try again.');
-        } finally {
-            setTimeout(() => hideFeedbackModal(), 8000);
+            // Setup feedback buttons
+            setupFeedbackButtons(elementData, geminiResponse);
+            
+        } else if (geminiResponse && geminiResponse.message) {
+            // Show analysis without fix
+            updateFeedbackModal(`
+                <b>🔍 Analysis Complete</b><br>
+                <div style="margin: 8px 0; padding: 8px; background: rgba(255,193,7,0.1); border-radius: 4px; font-size: 12px;">
+                    <div><strong>Element:</strong> ${elementData.tag} (${elementData.elementType || 'element'})</div>
+                    <div style="margin-top: 8px; color: #ffc107;">ℹ️ ${geminiResponse.message}</div>
+                </div>
+                <div style="text-align: center; margin-top: 12px;">
+                    <button id="close-analysis" style="background: #58a6ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">OK</button>
+                </div>
+            `);
+            
+            addChatMessage('AI Assistant', `🔍 **Element Analysis**\n\n**Element:** ${elementData.tag} (${elementData.elementType || 'element'})\n\n**Analysis:** ${geminiResponse.message}`, 'assistant');
+            
+            document.getElementById('close-analysis').onclick = () => hideFeedbackModal();
+            
+        } else {
+            // Handle error case
+            updateFeedbackModal(`
+                <b>⚠️ Auto-Analysis Failed</b><br>
+                <div style="margin: 8px 0; padding: 8px; background: rgba(220,53,69,0.1); border-radius: 4px; font-size: 12px;">
+                    <div><strong>Element:</strong> ${elementData.tag}</div>
+                    <div style="margin-top: 8px; color: #dc3545;">❌ Could not generate automatic fix</div>
+                    <div style="margin-top: 4px; color: #6c757d;">The element may not have obvious dark mode issues or requires manual intervention.</div>
+                </div>
+                <div style="text-align: center; margin-top: 12px;">
+                    <button id="retry-analysis" style="background: #ffc107; color: black; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 4px;">🔄 Retry</button>
+                    <button id="manual-report" style="background: #58a6ff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 4px;">✏️ Manual Report</button>
+                </div>
+            `);
+            
+            addChatMessage('System', `❌ Could not automatically fix the ${elementData.tag} element. You can try again or provide manual feedback about the specific issue.`, 'system');
+            
+            // Setup retry and manual report buttons
+            document.getElementById('retry-analysis').onclick = () => performAutomaticElementAnalysis(elementData);
+            document.getElementById('manual-report').onclick = () => showManualReportForm(elementData);
         }
-    }, 2000);
+        
+        // Auto-close modal after 10 seconds unless user interacts
+        setTimeout(() => {
+            const feedbackModal = document.getElementById('feedback-modal');
+            if (feedbackModal && feedbackModal.style.display === 'block') {
+                hideFeedbackModal();
+                addChatMessage('System', '💭 Analysis complete. Let me know if you need any adjustments to the fix!', 'system');
+            }
+        }, 10000);
+        
+    } catch (error) {
+        console.error('[Popup] Automatic element analysis error:', error);
+        
+        updateFeedbackModal(`
+            <b>❌ Analysis Error</b><br>
+            <div style="margin: 8px 0; padding: 8px; background: rgba(220,53,69,0.1); border-radius: 4px; font-size: 12px;">
+                <div style="color: #dc3545;">Error: ${error.message}</div>
+                <div style="margin-top: 4px; color: #6c757d;">Please try again or report the issue manually.</div>
+            </div>
+            <div style="text-align: center; margin-top: 12px;">
+                <button id="close-error" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
+            </div>
+        `);
+        
+        addChatMessage('System', `❌ Analysis error: ${error.message}. Please try again.`, 'system');
+        
+        document.getElementById('close-error').onclick = () => hideFeedbackModal();
+        
+        setTimeout(() => hideFeedbackModal(), 5000);
+    }
+}
+
+// Generate automatic description based on element analysis
+function generateAutoDescription(elementData) {
+    const issues = elementData.detectedIssues || [];
+    const elementType = elementData.elementType || 'element';
+    
+    if (issues.length === 0) {
+        return `Auto-analysis of ${elementData.tag} ${elementType} for potential dark mode improvements`;
+    }
+    
+    const issueDescriptions = {
+        'light_background_dark_text': 'light background with dark text needs dark mode conversion',
+        'transparent_background_dark_text': 'transparent background with dark text may be invisible in dark mode',
+        'very_light_background': 'very light background needs to be darkened',
+        'low_contrast': 'poor contrast between text and background',
+        'low_opacity': 'element has low opacity and may be hard to see',
+        'light_border': 'light border color needs dark mode adjustment'
+    };
+    
+    const descriptions = issues.map(issue => issueDescriptions[issue] || issue).join(', ');
+    return `Auto-detected issues: ${descriptions}`;
+}
+
+// Setup feedback buttons for user verification
+function setupFeedbackButtons(elementData, geminiResponse) {
+    const goodBtn = document.getElementById('fix-good');
+    const badBtn = document.getElementById('fix-bad');
+    const partialBtn = document.getElementById('fix-partial');
+    const detailsBtn = document.getElementById('view-details');
+    
+    if (goodBtn) {
+        goodBtn.onclick = () => {
+            addChatMessage('You', '👍 The fix looks good! Thank you for the automatic repair.', 'user');
+            addChatMessage('AI Assistant', '🎉 Great! I\'m glad the automatic fix worked well. If you find any other dark mode issues, just click "Report Issue" and select them!', 'assistant');
+            hideFeedbackModal();
+            
+            // Track successful fix
+            trackFixSuccess(elementData, geminiResponse, 'positive');
+        };
+    }
+    
+    if (badBtn) {
+        badBtn.onclick = () => {
+            addChatMessage('You', '👎 The fix didn\'t work or created new issues.', 'user');
+            addChatMessage('AI Assistant', '😔 I apologize that the automatic fix didn\'t work well. Can you describe what specific issues remain? I\'ll try to generate a better fix.', 'assistant');
+            hideFeedbackModal();
+            
+            // Track failed fix and ask for details
+            trackFixSuccess(elementData, geminiResponse, 'negative');
+            setTimeout(() => showManualReportForm(elementData), 1000);
+        };
+    }
+    
+    if (partialBtn) {
+        partialBtn.onclick = () => {
+            addChatMessage('You', '🤔 The fix partially worked but there are still some issues.', 'user');
+            addChatMessage('AI Assistant', '🔧 Thanks for the feedback! Could you tell me what specific issues remain? I can generate additional fixes to complete the dark mode conversion.', 'assistant');
+            hideFeedbackModal();
+            
+            // Track partial fix
+            trackFixSuccess(elementData, geminiResponse, 'partial');
+            setTimeout(() => showManualReportForm(elementData), 1000);
+        };
+    }
+    
+    if (detailsBtn) {
+        detailsBtn.onclick = () => {
+            showFixDetails(elementData, geminiResponse);
+        };
+    }
+}
+
+// Show manual report form for additional feedback
+function showManualReportForm(elementData) {
+    updateFeedbackModal(`
+        <b>📝 Manual Feedback</b><br>
+        <div style="margin: 8px 0; padding: 8px; background: rgba(88,166,255,0.1); border-radius: 4px; font-size: 12px;">
+            <div><strong>Element:</strong> ${elementData.tag} (${elementData.elementType || 'element'})</div>
+            <div style="margin-top: 4px; color: #58a6ff;">Please describe the remaining dark mode issues:</div>
+        </div>
+        <textarea id="manual-feedback" placeholder="Describe what specific dark mode issues you're still seeing..." style="width:100%;height:80px;margin-top:8px;box-sizing:border-box; background: #2a2a2a; color: #fff; border: 1px solid #555;"></textarea>
+        <div style="text-align: center; margin-top: 12px;">
+            <button id="submit-manual" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 4px;">🔧 Generate New Fix</button>
+            <button id="cancel-manual" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 4px;">Cancel</button>
+        </div>
+    `);
+    
+    const feedbackModal = document.getElementById('feedback-modal');
+    feedbackModal.style.display = 'block';
+    
+    document.getElementById('submit-manual').onclick = async () => {
+        const feedback = document.getElementById('manual-feedback').value.trim();
+        if (!feedback) {
+            alert('Please describe the issues you\'re experiencing.');
+            return;
+        }
+        
+        addChatMessage('You', `📝 Additional feedback: ${feedback}`, 'user');
+        
+        // Restart analysis with user feedback
+        const enhancedElementData = {
+            ...elementData,
+            description: feedback,
+            userReport: true,
+            refinement: true
+        };
+        
+        hideFeedbackModal();
+        performAutomaticElementAnalysis(enhancedElementData);
+    };
+    
+    document.getElementById('cancel-manual').onclick = () => hideFeedbackModal();
+}
+
+// Show detailed fix information
+function showFixDetails(elementData, geminiResponse) {
+    const cssLines = geminiResponse.cssPatch.split('\n').filter(line => line.trim()).length;
+    const stylesModified = geminiResponse.cssPatch.match(/[\w-]+\s*:/g)?.length || 0;
+    
+    updateFeedbackModal(`
+        <b>🔍 Fix Details</b><br>
+        <div style="margin: 8px 0; padding: 8px; background: rgba(40,40,40,0.9); border-radius: 4px; font-size: 11px;">
+            <div><strong>Element:</strong> ${elementData.tag} (${elementData.elementType || 'element'})</div>
+            <div><strong>XPath:</strong> <code style="background: #222; padding: 2px 4px; border-radius: 2px;">${elementData.xpath}</code></div>
+            <div><strong>Classes:</strong> ${elementData.classes.join(', ') || 'none'}</div>
+            <div><strong>Issues Fixed:</strong> ${elementData.detectedIssues.join(', ') || 'UI improvements'}</div>
+            <div><strong>CSS Rules Applied:</strong> ${cssLines} lines, ${stylesModified} properties modified</div>
+        </div>
+        <div style="margin: 8px 0;">
+            <strong>Applied CSS:</strong>
+            <pre style="background: #1a1a1a; color: #e4e6eb; padding: 8px; border-radius: 4px; font-size: 10px; max-height: 150px; overflow-y: auto; white-space: pre-wrap;">${geminiResponse.cssPatch}</pre>
+        </div>
+        <div style="text-align: center; margin-top: 12px;">
+            <button id="copy-css" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin: 0 4px; font-size: 11px;">📋 Copy CSS</button>
+            <button id="close-details" style="background: #58a6ff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin: 0 4px; font-size: 11px;">Close</button>
+        </div>
+    `);
+    
+    document.getElementById('copy-css').onclick = () => {
+        navigator.clipboard.writeText(geminiResponse.cssPatch).then(() => {
+            addChatMessage('System', '📋 CSS copied to clipboard!', 'system');
+        });
+    };
+    
+    document.getElementById('close-details').onclick = () => hideFeedbackModal();
+}
+
+// Track fix success for analytics
+function trackFixSuccess(elementData, geminiResponse, feedback) {
+    console.debug('[Popup] Tracking fix feedback:', { elementData, feedback });
+    
+    // Store detailed feedback for analytics and learning
+    const fixRecord = {
+        element: elementData.tag,
+        elementType: elementData.elementType,
+        issues: elementData.detectedIssues,
+        css: geminiResponse.cssPatch,
+        feedback: feedback,
+        timestamp: Date.now(),
+        url: elementData.url,
+        // Enhanced tracking
+        automaticAnalysis: elementData.automated || false,
+        userRefinement: elementData.refinement || false,
+        cssRulesCount: geminiResponse.cssPatch.split('\n').filter(line => line.includes(':')).length,
+        successScore: feedback === 'positive' ? 1 : feedback === 'partial' ? 0.5 : 0
+    };
+    
+    // Store in localStorage for analytics
+    const existingRecords = JSON.parse(localStorage.getItem('darkmode_fix_tracking') || '[]');
+    existingRecords.push(fixRecord);
+    
+    // Keep only last 100 records
+    if (existingRecords.length > 100) {
+        existingRecords.splice(0, existingRecords.length - 100);
+    }
+    
+    localStorage.setItem('darkmode_fix_tracking', JSON.stringify(existingRecords));
+    
+    // Send analytics to background for learning (if available)
+    try {
+        browserAPI.runtime.sendMessage({
+            type: 'TRACK_FIX_SUCCESS',
+            data: fixRecord
+        }, (response) => {
+            if (browserAPI.runtime.lastError) {
+                console.debug('[Popup] Analytics tracking not available:', browserAPI.runtime.lastError.message);
+            } else {
+                console.debug('[Popup] Fix success tracked for learning:', response);
+            }
+        });
+    } catch (error) {
+        console.debug('[Popup] Could not send analytics:', error);
+    }
+    
+    // Auto-refresh analytics display
+    try {
+        updateAnalyticsDisplay();
+    } catch (error) {
+        console.debug('[Popup] Could not update analytics display:', error);
+    }
+}
+
+// Auto-update analytics display after feedback
+function updateAnalyticsDisplay() {
+    const records = JSON.parse(localStorage.getItem('darkmode_fix_tracking') || '[]');
+    
+    if (records.length > 0) {
+        const successRate = records.filter(r => r.successScore > 0.5).length / records.length;
+        const avgScore = records.reduce((sum, r) => sum + r.successScore, 0) / records.length;
+        
+        // Update any analytics displays in the UI
+        const statusText = document.getElementById('status-text');
+        if (statusText && records.length > 5) {
+            statusText.textContent = `${records.length} fixes applied (${Math.round(successRate * 100)}% success)`;
+        }
+        
+        console.debug('[Popup] Analytics updated:', { 
+            totalFixes: records.length, 
+            successRate: Math.round(successRate * 100) + '%',
+            avgScore: avgScore.toFixed(2)
+        });
+    }
+}
+
+// Handle agent status updates
+function handleAgentStatusUpdate(msg) {
+    console.debug('[Popup] Agent status update:', msg);
+    // Handle status updates from the AI agent
+}
+
+// Update status display
+function updateStatusDisplay(msg) {
+    console.debug('[Popup] Status display update:', msg);
+    // Update the UI with new status information
+}
+
+// Update page status indicator
+function updatePageStatusIndicator() {
+    console.debug('[Popup] Updating page status indicator');
+    
+    const statusIndicator = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    
+    if (!statusIndicator || !statusText) {
+        console.debug('[Popup] Status elements not found');
+        return;
+    }
+    
+    // Get current tab info
+    browserAPI.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (browserAPI.runtime.lastError) {
+            console.debug('[Popup] Error querying tabs:', browserAPI.runtime.lastError.message);
+            return;
+        }
+        
+        const tab = tabs[0];
+        if (!tab || !tab.url) {
+            statusIndicator.style.color = '#6c757d';
+            statusText.textContent = 'No active page';
+            return;
+        }
+        
+        if (tab.url.startsWith('http') || tab.url.startsWith('https')) {
+            // Check if dark mode is enabled
+            browserAPI.storage.sync.get(['darkModeEnabled'], (result) => {
+                if (result.darkModeEnabled) {
+                    statusIndicator.style.color = '#28a745';
+                    statusText.textContent = 'Dark mode active';
+                } else {
+                    statusIndicator.style.color = '#ffc107';
+                    statusText.textContent = 'Ready for dark mode';
+                }
+            });
+        } else {
+            statusIndicator.style.color = '#dc3545';
+            statusText.textContent = 'Unsupported page type';
+        }
+    });
+}
+
+// Trigger real-time analysis
+async function triggerRealTimeAnalysis() {
+    console.debug('[Popup] Triggering real-time analysis');
+    
+    try {
+        const [tab] = await browserAPI.tabs.query({ active: true, currentWindow: true });
+        if (!tab || !tab.url || !(tab.url.startsWith('http') || tab.url.startsWith('https'))) {
+            console.debug('[Popup] Skipping analysis - unsupported page');
+            return;
+        }
+        
+        // Send analysis request to content script
+        browserAPI.tabs.sendMessage(tab.id, {
+            type: 'TRIGGER_DARK_MODE_ANALYSIS'
+        }, (response) => {
+            if (browserAPI.runtime.lastError) {
+                console.debug('[Popup] Could not trigger analysis:', browserAPI.runtime.lastError.message);
+            } else {
+                console.debug('[Popup] Real-time analysis triggered:', response);
+            }
+        });
+        
+    } catch (error) {
+        console.debug('[Popup] Error triggering real-time analysis:', error);
+    }
+}
+
+// Get page type for error messages
+function getPageType(url) {
+    if (!url) {
+        return 'unknown';
+    }
+    
+    if (url.startsWith('chrome://') || url.startsWith('edge://') || url.startsWith('about:')) {
+        return 'browser';
+    } else if (url.startsWith('chrome-extension://') || url.startsWith('moz-extension://')) {
+        return 'extension';
+    } else if (url.startsWith('file://')) {
+        return 'file';
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+        return 'web';
+    } else {
+        return 'unknown';
+    }
+}
+
+// Get user-friendly message for unsupported pages
+function getUnsupportedPageMessage(pageType) {
+    switch (pageType) {
+        case 'browser':
+            return 'Dark mode cannot be applied to browser internal pages';
+        case 'extension':
+            return 'Dark mode cannot be applied to extension pages';
+        case 'file':
+            return 'Dark mode cannot be applied to local files';
+        case 'unknown':
+            return 'This page type is not supported';
+        default:
+            return 'Dark mode is not available for this page';
+    }
+}
+
+// Update connection status
+async function updateConnectionStatus() {
+    console.debug('[Popup] Updating connection status');
+    
+    const isConnected = await checkBackgroundConnection();
+    
+    // Update UI based on connection status
+    const statusText = document.getElementById('status-text');
+    if (statusText && !isConnected) {
+        statusText.textContent = 'Connection issues detected';
+    }
+    
+    console.debug('[Popup] Background connection status:', isConnected);
 }
 
 // Render feedback analytics
 function renderFeedbackAnalytics() {
+    console.debug('[Popup] Rendering feedback analytics');
+    
     try {
-        const feedbackData = JSON.parse(localStorage.getItem('darkmode_feedback') || '[]');
-        const feedbackCountElement = document.querySelector('[data-analytics="feedback-count"]');
-        if (feedbackCountElement) {
-            feedbackCountElement.textContent = feedbackData.length;
+        const feedback = JSON.parse(localStorage.getItem('darkmode_feedback') || '[]');
+        const fixTracking = JSON.parse(localStorage.getItem('darkmode_fix_tracking') || '[]');
+        
+        // Update issues count
+        const issuesCount = document.getElementById('issues-count');
+        if (issuesCount) {
+            issuesCount.textContent = feedback.length.toString();
         }
+        
+        // Update fixes count
+        const fixesCount = document.getElementById('fixes-count');
+        if (fixesCount) {
+            fixesCount.textContent = fixTracking.length.toString();
+        }
+        
+        // Update confidence score
+        const confidenceScore = document.getElementById('confidence-score');
+        if (confidenceScore && fixTracking.length > 0) {
+            const avgScore = fixTracking.reduce((sum, record) => sum + (record.successScore || 0), 0) / fixTracking.length;
+            confidenceScore.textContent = Math.round(avgScore * 100) + '%';
+        } else if (confidenceScore) {
+            confidenceScore.textContent = '-';
+        }
+        
+        // Update last scan
+        const lastScan = document.getElementById('last-scan');
+        if (lastScan) {
+            if (fixTracking.length > 0) {
+                const latest = Math.max(...fixTracking.map(r => r.timestamp || 0));
+                const date = new Date(latest);
+                lastScan.textContent = date.toLocaleTimeString();
+            } else {
+                lastScan.textContent = 'Never';
+            }
+        }
+        
     } catch (error) {
         console.debug('[Popup] Error rendering feedback analytics:', error);
     }
 }
 
-// Render AI learning analytics  
+// Render AI learning analytics
 function renderAILearningAnalytics() {
+    console.debug('[Popup] Rendering AI learning analytics');
+    
     try {
-        const learningData = JSON.parse(localStorage.getItem('ai_learning_data') || '{}');
-        const patternCountElement = document.querySelector('[data-analytics="pattern-count"]');
-        if (patternCountElement) {
-            const patternCount = Object.keys(learningData.patterns || {}).length;
-            patternCountElement.textContent = patternCount;
+        const aiAnalyticsContent = document.getElementById('ai-analytics-content');
+        if (!aiAnalyticsContent) {
+            console.debug('[Popup] AI analytics content element not found');
+            return;
         }
+        
+        const fixTracking = JSON.parse(localStorage.getItem('darkmode_fix_tracking') || '[]');
+        
+        if (fixTracking.length === 0) {
+            aiAnalyticsContent.innerHTML = '<div style="padding: 16px; text-align: center; color: #6c757d;">No AI learning data available yet. Use the "Report Issue" feature to start building your AI knowledge base!</div>';
+            return;
+        }
+        
+        // Calculate success metrics
+        const totalFixes = fixTracking.length;
+        const successfulFixes = fixTracking.filter(r => r.successScore > 0.5).length;
+        const successRate = Math.round((successfulFixes / totalFixes) * 100);
+        const avgConfidence = Math.round(fixTracking.reduce((sum, r) => sum + (r.successScore || 0), 0) / totalFixes * 100);
+        
+        // Most common issues
+        const issueTypes = {};
+        fixTracking.forEach(record => {
+            if (record.issues && Array.isArray(record.issues)) {
+                record.issues.forEach(issue => {
+                    issueTypes[issue] = (issueTypes[issue] || 0) + 1;
+                });
+            }
+        });
+        
+        const topIssues = Object.entries(issueTypes)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3)
+            .map(([issue, count]) => `${issue.replace(/_/g, ' ')} (${count})`);
+        
+        aiAnalyticsContent.innerHTML = `
+            <div style="padding: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div style="background: rgba(40,167,69,0.1); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #28a745;">${successRate}%</div>
+                        <div style="font-size: 12px; color: #6c757d;">Success Rate</div>
+                    </div>
+                    <div style="background: rgba(0,123,255,0.1); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: bold; color: #007bff;">${totalFixes}</div>
+                        <div style="font-size: 12px; color: #6c757d;">Total Fixes</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🎯 Learning Progress</div>
+                    <div style="background: #2a2a2a; border-radius: 8px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #28a745, #20c997); height: 8px; width: ${avgConfidence}%;"></div>
+                    </div>
+                    <div style="font-size: 11px; color: #6c757d; margin-top: 4px;">AI Confidence: ${avgConfidence}%</div>
+                </div>
+                
+                ${topIssues.length > 0 ? `
+                <div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 13px;">🔍 Top Issues Fixed</div>
+                    <div style="font-size: 11px; line-height: 1.4;">
+                        ${topIssues.map(issue => `• ${issue}`).join('<br>')}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+        
     } catch (error) {
         console.debug('[Popup] Error rendering AI learning analytics:', error);
     }
 }
-

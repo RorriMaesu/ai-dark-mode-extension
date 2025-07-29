@@ -145,15 +145,15 @@ Studies show that **only 3.7% of users** actively support the tools that improve
 #### **Developer Installation**
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/universal-dark-mode.git
-   cd universal-dark-mode
+   git clone https://github.com/RorriMaesu/ai-dark-mode-extension.git
+   cd ai-dark-mode-extension
    ```
 
 2. **Load in browser:**
    - Open `chrome://extensions/` (Chrome) or `edge://extensions/` (Edge)
    - Enable "Developer mode"
    - Click "Load unpacked"
-   - Select the `universal-dark-mode` folder
+   - Select the `ai-dark-mode-extension` folder
 
 ### **Backend Setup (Optional)**
 
@@ -238,15 +238,14 @@ The extension will work with basic functionality even without the backend, but A
 
 ### **Project Structure**
 ```
-universal-dark-mode/
+ai-dark-mode-extension/
 ├── manifest.json              # Extension manifest
 ├── background.js              # Service worker
 ├── content.js                 # Content script for page interaction
 ├── add-dark-class.js          # Dark mode CSS injection
 ├── ai-learning.js             # AI learning engine
-├── ai-model.js                # Element classification model
+├── ai-dashboard.js            # Analytics dashboard
 ├── dark-theme.css             # Base dark theme styles
-├── element-selector.js        # Element selection utilities
 ├── popup/
 │   ├── popup.html            # Extension popup UI
 │   ├── popup.js              # Popup functionality
@@ -255,8 +254,7 @@ universal-dark-mode/
 │   ├── server.js             # Backend Express server
 │   ├── package.json          # Server dependencies
 │   └── feedback_log.json     # Analytics storage
-├── icons/                    # Extension icons
-└── docs/                     # Documentation
+└── icons/                    # Extension icons
 ```
 
 ### **Key APIs Used**
@@ -404,7 +402,7 @@ localStorage.setItem('debug', 'true');
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Feel free to:
 
 ### **Development Setup**
 1. Fork the repository
@@ -432,10 +430,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/universal-dark-mode/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/universal-dark-mode/discussions)
-- 📧 **Email**: support@universaldarkmode.com
-- 🐦 **Twitter**: [@UniversalDarkMode](https://twitter.com/UniversalDarkMode)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/RorriMaesu/ai-dark-mode-extension/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/RorriMaesu/ai-dark-mode-extension/discussions)
 
 ---
 

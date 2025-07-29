@@ -1,11 +1,19 @@
 # AI Dark Mode Extension
 
-🌙 **Your journey to the dark side is complete. AI-powered extension that eliminates light mode from every website. The Empire's favorite browser tool. Join us, and together we shall rule the web.**
+<div align="center">
+  <img src="./logo.png" alt="AI Dark Mode Extension Logo" width="200" height="200" />
+  
+  🌙 **Your journey to the dark side is complete. AI-powered extension that eliminates light mode from every website. The Empire's favorite browser tool. Join us, and together we shall rule the web.**
+</div>
+
+<div align="center">
 
 [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?logo=google-chrome)](https://chrome.google.com/webstore)
 [![Microsoft Edge](https://img.shields.io/badge/Edge-Extension-green?logo=microsoft-edge)](https://microsoftedge.microsoft.com/addons)
 [![Firefox](https://img.shields.io/badge/Firefox-Extension-orange?logo=firefox)](https://addons.mozilla.org/firefox)
 [![GitHub Stars](https://img.shields.io/github/stars/RorriMaesu/ai-dark-mode-extension?style=social)](https://github.com/RorriMaesu/ai-dark-mode-extension)
+
+</div>
 
 **Transform any website into a beautiful dark mode experience using the power of AI.** This extension leverages Google's Gemini AI to automatically detect and fix dark mode issues in real-time, providing an intelligent, adaptive dark mode solution for the entire web.
 

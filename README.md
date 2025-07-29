@@ -1,7 +1,7 @@
 # AI Dark Mode Extension
 
 <div align="center">
-  <img src="./logo.png" alt="AI Dark Mode Extension Logo" width="200" height="200" />
+  <img src="./aiDarkModeLogo.jpeg" alt="AI Dark Mode Extension Logo" width="200" height="200" />
   
   🌙 **Your journey to the dark side is complete. AI-powered extension that eliminates light mode from every website. The Empire's favorite browser tool. Join us, and together we shall rule the web.**
 </div>
@@ -116,7 +116,7 @@ Studies show that **only 3.7% of users** actively support the tools that improve
 ### ⚡ Claim Your Position in the Dark Side Elite ⚡
 
 <a href="https://buymeacoffee.com/rorrimaesu" target="_blank">
-  <img src="https://raw.githubusercontent.com/RorriMaesu/ai-dark-mode-extension/main/BuyMeACoffeeButton.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" />
+  <img src="./BuyMeACoffeeButton.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" />
 </a>
 
 **🎯 Limited Time: Your contribution today directly funds next month's breakthrough features**

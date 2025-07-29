@@ -116,7 +116,7 @@ Studies show that **only 3.7% of users** actively support the tools that improve
 ### ⚡ Claim Your Position in the Dark Side Elite ⚡
 
 <a href="https://buymeacoffee.com/rorrimaesu" target="_blank">
-  <img src="./BuyMeACoffeeButton.png" alt="Buy Me A Coffee" height="360" />
+  <img src="./BuyMeACoffeeButton.png" alt="Buy Me A Coffee" height="432" />
 </a>
 
 **🎯 Limited Time: Your contribution today directly funds next month's breakthrough features**
